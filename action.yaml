@@ -1,0 +1,28 @@
+name: 'Quick Pull Request'
+description: 'Make a PR on a single file'
+inputs:
+  github_token:
+    description: 'github token'
+    required: true
+  owner:
+    description: 'repo to create pr: owner'
+    required: true
+  repo:
+    description: 'repo to create pr: repo'
+    required: true
+  base_branch:
+    description: 'base branch to checkout'
+    required: false
+    default: 'main'
+  file_path:
+    description: 'file path to save the changes'
+    required: true
+  content:
+    description: 'FULL content of the updated file'
+    required: true
+outputs:
+  pull_request:
+    description: 'Created pr object'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

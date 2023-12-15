@@ -16,7 +16,7 @@ async function createFileUpsertPR({
     content,
 }) {
     const github_token = core.getInput('github_token');
-    const octokit = github.getOctokit(github_token);
+    const octokit = github.getOctokit(github_token).rest;
     const github_client = gh.clients(octokit);
 
     const now = new Date();
@@ -50,42 +50,42 @@ async function createFileUpsertPR({
             owner,
             repo,
             from_branch: new_branch,
-            to_branch: branch,
+            to_branch: base_branch,
             title: `[Skip CI] Quick Pull Request - ${filename} on ${now.toISOString()}`
         }
     );
 
-    core.setOutput('pull_request', {
+    return {
         id: (uuid.v4()).replace(/-/g, ''),
         owner,
         repo,
-        new_branch,
-        filename,
-        pull_request_url: _.get(first_handle_result, [
-            'created_pr',
+        branch: new_branch,
+        pull_request_url: _.get(created_pr, [
             'data',
             'html_url'
         ]),
         created_at: now.toISOString()
-    });
+    };
 }
 
 async function main() {
     const owner = core.getInput('owner');
     const repo = core.getInput('repo');
+    const base_branch = core.getInput('base_branch');
     const file_path = core.getInput('file_path');
     const content = core.getInput('content');
 
     return createFileUpsertPR({
         owner,
         repo,
+        base_branch,
         file_path,
         content,
     });
 }
 
 main().then(result => {
-    core.setOutput('result', result);
+    core.setOutput('pull_request', result);
 }).catch(err => {
     core.setFailed(err.message);
 })
